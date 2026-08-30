@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>План подготовки</title>
+<style>
+:root{
+  --bg:#f5f5f7; --card:#fff; --ink:#1d1d1f; --sec:#6e6e73; --sec2:#86868b;
+  --line:#ececee; --line2:#d9d9dd; --soft:#f1f1f3;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);
+  font-family:-apple-system,'SF Pro Display','SF Pro Text',system-ui,'Helvetica Neue',sans-serif;
+  -webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums;padding:40px 22px 90px;letter-spacing:-0.014em}
+.wrap{max-width:960px;margin:0 auto}
+.card{background:var(--card);border-radius:20px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.hero{padding:30px 32px 30px}
+.hero .top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px}
+.hero h1{font-size:32px;font-weight:600;letter-spacing:-0.03em;margin:0}
+.hero .goalpill{display:flex;gap:9px;align-items:center;background:var(--soft);border-radius:12px;padding:9px 15px;font-size:14px}
+.hero .goalpill .g{color:var(--sec)} .hero .goalpill b{font-weight:600}
+.scrub{margin-top:30px;user-select:none}
+.scrub .sel{display:flex;align-items:baseline;gap:12px;margin-bottom:16px}
+.scrub .sel .wknum{font-size:26px;font-weight:600;letter-spacing:-0.02em}
+.scrub .sel .ph{font-size:15px;color:var(--sec)}
+.rail{position:relative;height:46px;cursor:grab;touch-action:none}
+.rail.drag{cursor:grabbing}
+.bands{position:absolute;top:16px;left:0;right:0;height:14px;border-radius:7px;overflow:hidden;display:flex}
+.bands .b{height:100%}
+.ticks{position:absolute;top:16px;left:0;right:0;height:14px}
+.ticks i{position:absolute;top:3px;width:1px;height:8px;background:rgba(255,255,255,.55)}
+.ny{position:absolute;top:12px;width:2px;height:22px;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.15)}
+.ny span{position:absolute;top:-15px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--sec);white-space:nowrap}
+.thumb{position:absolute;top:6px;height:34px;padding:0 7px;border-radius:17px;background:#fff;
+  box-shadow:0 3px 10px rgba(0,0,0,.24),0 0 0 1px rgba(0,0,0,.06);
+  transform:translateX(-50%);display:flex;align-items:center;gap:5px;font-weight:700;cursor:grab}
+.rail.drag .thumb{cursor:grabbing}
+.thumb .ar{font-size:15px;color:var(--sec);font-weight:400;line-height:1}
+.thumb .tn{font-size:13px;min-width:15px;text-align:center;color:var(--ink)}
+.plabels{display:flex;margin-top:8px;font-size:11px;color:var(--sec)}
+.plabels div{text-align:center}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border-radius:16px;overflow:hidden;margin-top:28px}
+@media(max-width:760px){.metrics{grid-template-columns:repeat(2,1fr)}}
+.metric{background:var(--card);padding:15px 18px}
+.metric .l{font-size:12px;color:var(--sec)}
+.metric .v{font-size:22px;font-weight:600;letter-spacing:-0.02em;margin-top:5px}
+.metric .v small{font-size:13px;color:var(--sec);font-weight:400}
+.metric .v .vgain{font-size:13px;color:#2e9e5b;font-weight:600;letter-spacing:0}
+.sec{margin-top:44px}
+.sec .h{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px;padding:0 4px}
+.sec .h .t{font-size:21px;font-weight:600;letter-spacing:-0.02em}
+.chart{padding:24px 26px 18px}
+.chartbox{position:relative;height:190px}
+.chartbox svg{width:100%;height:100%;display:block;overflow:visible}
+.pbands{display:flex;flex-wrap:wrap;gap:7px 24px;margin-top:16px;font-size:12px;color:var(--sec)}
+.pbands span b{color:var(--ink);font-weight:600;margin-right:6px}
+.legend{display:flex;gap:20px;margin-top:14px;font-size:12px;color:var(--sec)}
+.legend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+.bridge{text-align:left;font-size:15px;color:var(--sec);margin:6px 4px 10px}
+.bridge b{color:var(--ink);font-weight:700}
+.sessions{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:760px){.sessions{grid-template-columns:1fr}}
+.ss{background:var(--card);border-radius:16px;padding:18px;box-shadow:0 1px 2px rgba(0,0,0,.04);display:flex;flex-direction:column;min-height:132px}
+.ss.key{background:var(--ink);color:#fff}
+.ss.cross,.ss.rest{background:var(--soft)}
+.ss .kind{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--sec)}
+.ss.key .kind{color:#a9a9b0}
+.ss .ti{font-size:17px;font-weight:600;margin-top:7px;letter-spacing:-0.01em}
+.ss .val{font-size:24px;font-weight:600;letter-spacing:-0.02em;margin-top:auto}
+.ss .val small{font-size:13px;color:var(--sec);font-weight:400}
+.ss.key .val small{color:#a9a9b0}
+.ss .pc{font-size:13px;color:var(--sec);margin-top:4px;line-height:1.35}
+.ss.key .pc{color:#c9c9cf}
+.ss .zchip{align-self:flex-start;font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;background:var(--soft);margin-top:10px}
+.ss.key .zchip{background:rgba(255,255,255,.18);color:#fff}
+.flip{position:relative;min-height:150px;cursor:pointer;perspective:900px}
+.flip .ss{position:absolute;inset:0;min-height:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;transition:transform .5s cubic-bezier(.4,.2,.2,1)}
+.flip .back{transform:rotateY(180deg)}
+.flip.on .front{transform:rotateY(180deg)}
+.flip.on .back{transform:rotateY(0)}
+.flip .fh{position:absolute;right:14px;bottom:12px;font-size:11px;color:var(--sec2)}
+.flip .key .fh{color:#8e8e93}
+.flip .bd{font-size:13px;line-height:1.45;color:var(--ink);margin-top:8px;padding-right:4px}
+.flip .key .bd{color:#e5e5ea}
+.walkbar{margin-top:12px;font-size:13px;color:var(--sec);background:var(--card);border-radius:12px;padding:12px 16px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.walkbar b{color:var(--ink);font-weight:600}
+.walkbar .src{display:block;margin-top:5px;color:var(--sec2);font-size:12px}
+.ztable{width:100%;border-collapse:collapse}
+.ztable td,.ztable th{padding:13px 24px;text-align:left;border-top:1px solid var(--line)}
+.ztable th{font-size:12px;text-transform:uppercase;letter-spacing:.03em;color:var(--sec);font-weight:600;border-top:0}
+.ztable .zn{display:flex;align-items:center;gap:11px;font-weight:600;font-size:15px}
+.ztable .zn .zc{min-width:24px;margin-left:-3px;font-size:13px;color:var(--sec);font-weight:600}
+.ztable .dot{width:10px;height:10px;border-radius:50%}
+.ztable .hr,.ztable .why{font-size:14px;color:var(--sec)}
+table.wk{width:100%;border-collapse:collapse;font-size:15px}
+table.wk thead th{font-size:12px;text-transform:uppercase;letter-spacing:.02em;color:var(--sec);font-weight:600;text-align:left;padding:14px 20px;background:#fafafb}
+table.wk td{padding:13px 20px;border-top:1px solid var(--line)}
+table.wk tr.on td{background:#f0f0f2}
+table.wk .b{font-weight:600}
+table.wk .mut{color:var(--sec);font-size:13px}
+table.wk .pg{display:inline-block;width:56px;height:5px;background:var(--line);border-radius:3px;overflow:hidden;vertical-align:middle;margin-right:9px}
+table.wk .pg i{display:block;height:100%;background:var(--ink);border-radius:3px}
+table.wk .pgv{font-size:13px;color:var(--sec)}
+.miles{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+@media(max-width:760px){.miles{grid-template-columns:repeat(2,1fr)}}
+.mi{background:var(--card);border-radius:16px;padding:16px 18px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.mi .mw{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--sec)}
+.mi .mn{font-size:26px;font-weight:600;letter-spacing:-0.02em;margin-top:8px}
+.mi .mn small{font-size:13px;color:var(--sec);font-weight:400}
+.mi .ml{font-size:13px;color:var(--sec);margin-top:4px}
+.mi.last{background:var(--ink);color:#fff}
+.mi.last .mw,.mi.last .ml,.mi.last .mn small{color:#a9a9b0}
+.mrow{display:grid;grid-template-columns:220px 1fr;gap:20px;padding:15px 22px;border-top:1px solid var(--line)}
+.mrow:first-child{border-top:0}
+@media(max-width:640px){.mrow{grid-template-columns:1fr;gap:4px}}
+.mrow .mt{font-size:15px;font-weight:600;letter-spacing:-0.01em}
+.mrow .md{font-size:14px;line-height:1.45;color:var(--sec)}
+.bento{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:minmax(150px,auto);gap:12px}
+@media(max-width:760px){.bento{grid-template-columns:repeat(2,1fr)}}
+.bt{background:var(--card);border-radius:18px;padding:20px 22px;display:flex;flex-direction:column;box-shadow:0 1px 2px rgba(0,0,0,.04);position:relative}
+.bt.wide{grid-column:span 2}
+.bt.tall{grid-row:span 2}
+.bt.dark{background:var(--ink);color:#fff}
+.bt .bk{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--sec)}
+.bt.dark .bk{color:#a9a9b0}
+.bt .bh{font-size:19px;font-weight:600;letter-spacing:-0.02em;margin-top:8px;line-height:1.15}
+.bt .bp{font-size:13.5px;line-height:1.45;color:var(--sec);margin-top:8px}
+.bt.dark .bp{color:#c9c9cf}
+.bt .bnum{font-size:44px;font-weight:600;letter-spacing:-0.03em;margin-top:auto;padding-top:14px;line-height:1}
+.bt .bnum small{font-size:14px;color:var(--sec);font-weight:400;letter-spacing:0}
+.bt .bs{font-size:11px;color:var(--sec2);margin-top:auto;padding-top:12px}
+.bt.dark .bs{color:#8e8e93}
+.bt.tall .bs{margin-top:12px}
+.foot{font-size:13px;color:var(--sec);margin-top:14px;padding-left:4px}
+.method{margin-top:40px;font-size:12px;color:var(--sec2);text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card hero">
+    <div class="top">
+      <div><h1 id="title"></h1></div>
+      <div class="goalpill"><span class="g">Цель:</span><b id="goal"></b></div>
+    </div>
+    <div class="scrub">
+      <div class="sel"><span class="wknum" id="selWk"></span><span class="ph" id="selPh"></span></div>
+      <div class="rail" id="rail">
+        <div class="bands" id="bands"></div>
+        <div class="ticks" id="ticks"></div>
+        <div id="pauses"></div>
+        <div class="thumb" id="thumb"><span class="ar">‹</span><span class="tn" id="thumbN">1</span><span class="ar">›</span></div>
+      </div>
+      <div class="plabels" id="plabels"></div>
+    </div>
+    <div class="metrics">
+      <div class="metric"><div class="l">Объём недели</div><div class="v"><span id="mVol"></span><small> км</small></div></div>
+      <div class="metric"><div class="l">Длинная тренировка</div><div class="v"><span id="mLong"></span><small> км</small></div></div>
+      <div class="metric"><div class="l">Время нагрузок в неделю</div><div class="v"><span id="mHrs"></span><small> ч</small></div></div>
+      <div class="metric" id="mVo2Box"><div class="l">Прогноз VO₂max</div><div class="v"><span id="mVo2"></span> <span class="vgain" id="mGain"></span></div></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="bridge"><span id="brVerb"></span> неделю <b id="brWk">1</b> из <span id="brN"></span>:</div>
+    <div class="h"><span class="t">Рекомендуемый план на неделю</span></div>
+    <div class="sessions" id="sessions"></div>
+    <div class="walkbar" id="recbar"></div>
+  </div>
+
+  <div class="sec">
+    <div class="h"><span class="t">Нагрузка на год</span></div>
+    <div class="card chart">
+      <div class="chartbox"><svg id="vchart" preserveAspectRatio="none"></svg></div>
+      <div class="pbands" id="pbands"></div>
+      <div class="legend">
+        <span><i style="background:#1d1d1f"></i>Недельный объём</span>
+        <span><i style="background:#c7c7cc"></i>Длинная пробежка</span>
+        <span><i style="background:#1d1d1f;width:8px;height:8px;border-radius:50%"></i>Выбранная неделя</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec" id="vo2sec">
+    <div class="h"><span class="t">Прогноз VO₂max</span></div>
+    <div class="card chart">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
+        <div style="font-size:13px;color:var(--sec)">старт <b style="color:var(--ink)" id="vo2a"></b></div>
+        <div style="font-size:13px;color:var(--sec)">к забегу <b style="color:var(--ink)" id="vo2b"></b></div>
+      </div>
+      <div class="chartbox" style="height:120px"><svg id="vo2chart" preserveAspectRatio="none"></svg></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="h"><span class="t">Твой предполагаемый темп по зонам</span></div>
+    <div class="card"><table class="ztable">
+      <thead><tr><th>Зона</th><th>Темп</th><th>Пульс</th><th>Зачем</th></tr></thead>
+      <tbody id="zbody"></tbody>
+    </table></div>
+    <div class="foot" id="zfoot"></div>
+  </div>
+
+  <div class="sec">
+    <div class="h"><span class="t">По неделям</span></div>
+    <div class="card"><table class="wk">
+      <thead><tr><th>Нед</th><th>Фаза</th><th>Объём</th><th>Длинная</th><th>Акцент</th><th id="readyH"></th></tr></thead>
+      <tbody id="wkbody"></tbody>
+    </table></div>
+  </div>
+
+  <div class="sec"><div class="h"><span class="t">Вехи</span></div><div class="miles" id="miles"></div></div>
+
+  <div class="sec"><div class="h"><span class="t">Что и как мониторить</span></div><div class="card" id="monitor"></div></div>
+
+  <div class="sec"><div class="h"><span class="t">Питание по этапам</span></div><div class="bento" id="bento"></div></div>
+
+  <div class="sec"><div class="h"><span class="t" id="troubleT"></span></div><div class="card" id="trouble"></div></div>
+
+  <div class="method" id="method"></div>
+</div>
+
+<script>
+/* ============================================================
+   PLAN: единственное место, которое заполняет скилл.
+   Разметку и стили не трогать. Массивы по неделям имеют длину weeks.
+   ============================================================ */
+var PLAN = {
+  name: "Кристина",
+  gender: "f",                       // f | m, для форм «выбрала/выбрал», «сбилась/сбился»
+  distance: 21.1,                    // 21.1 | 42.2
+  title: "Полумарафон 21,1 км",
+  goal: "Добежать в удовольствие",
+  startDate: "2026-08-30",           // дата начала подготовки, ISO
+  weeks: 54,
+  phases: [                          // подряд, покрывают все недели
+    {name:"Возвращение", from:1,  to:5,  color:"#dcdce0"},
+    {name:"База",        from:6,  to:38, color:"#b6b6bc"},
+    {name:"Развитие",    from:39, to:49, color:"#8e8e94"},
+    {name:"Пик",         from:50, to:52, color:"#5c5c61"},
+    {name:"Подводка",    from:53, to:54, color:"#c9c9ce"}
+  ],
+  pauseWeeks: {17:"НГ"},             // неделя: короткая подпись
+  deloadWeeks: [8,12,16,20,24,28,32,36,40,44,48,52],
+  volume: [],                        // км по неделям
+  longRun: [],                       // км по неделям
+  vo2max: [],                        // прогноз по неделям, пустой массив если VO₂max неизвестен
+  minPerKm: 6.5,                     // средний темп для расчёта времени
+  zones: [
+    {z:"Z1", name:"Восстановление", pace:"6:50+",     hr:"< 65%",  why:"Лёгкие дни, ходьба",           color:"#c7c7cc"},
+    {z:"Z2", name:"Аэробный",       pace:"6:00-6:35", hr:"65-79%", why:"Основа: лёгкий бег и длинные", color:"#98989d"},
+    {z:"Z3", name:"Крепкий",        pace:"5:30-5:45", hr:"80-87%", why:"Темп забега",                  color:"#636366"},
+    {z:"Z4", name:"Пороговый",      pace:"5:05-5:20", hr:"88-92%", why:"Темповые, рост потолка",       color:"#3a3a3c"},
+    {z:"Z5", name:"Быстрый",        pace:"< 4:55",    hr:"95%+",   why:"Интервалы, ускорения",         color:"#1d1d1f"}
+  ],
+  zonesNote: "Темпы рассчитаны по таблицам VDOT (Daniels) с поправкой на то, что VO₂max из гаджета обычно выше лабораторного. После первого контрольного забега на 5 км зоны стоит пересчитать.",
+  // Сессии типовой недели по фазе. val: число, u: "км" | "мин", pc: целевой темп только у бега.
+  // long: true помечает длинную (её дистанция берётся из longRun). Для разгрузочных недель
+  // качественная сессия автоматически заменяется лёгким бегом.
+  sessions: {
+    "Возвращение": [
+      {tone:"key",  kind:"Ключевая",       ti:"Длинная",              long:true, u:"км", pc:"6:30/км", z:"Z2"},
+      {tone:"",     kind:"Качество",       ti:"Интервалы",            share:0.22, u:"км", pc:"4:50/км", z:"Z5", quality:true},
+      {tone:"",     kind:"Бег",            ti:"Лёгкий бег",           share:0.30, u:"км", pc:"6:20/км", z:"Z2"},
+      {tone:"cross",kind:"Сила",           ti:"Функционал / пилатес", val:45, u:"мин", z:"Z2-3"},
+      {tone:"cross",kind:"Восстановление", ti:"Йога",                 val:40, u:"мин", z:"Z1"}
+    ],
+    "База": [
+      {tone:"key",  kind:"Ключевая",       ti:"Длинная",              long:true, u:"км", pc:"6:30/км", z:"Z2"},
+      {tone:"",     kind:"Качество",       ti:"Интервалы",            share:0.22, u:"км", pc:"4:50/км", z:"Z5", quality:true},
+      {tone:"",     kind:"Бег",            ti:"Лёгкий бег",           share:0.30, u:"км", pc:"6:20/км", z:"Z2"},
+      {tone:"cross",kind:"Сила",           ti:"Функционал / пилатес", val:45, u:"мин", z:"Z2-3"},
+      {tone:"cross",kind:"Восстановление", ti:"Йога",                 val:40, u:"мин", z:"Z1"}
+    ],
+    "Развитие": [
+      {tone:"key",  kind:"Ключевая",       ti:"Длинная",              long:true, u:"км", pc:"6:15/км", z:"Z2-3"},
+      {tone:"",     kind:"Качество",       ti:"Темповый бег",         share:0.22, u:"км", pc:"5:15/км", z:"Z4", quality:true},
+      {tone:"",     kind:"Бег",            ti:"Лёгкий бег",           share:0.30, u:"км", pc:"6:20/км", z:"Z2"},
+      {tone:"cross",kind:"Сила",           ti:"Силовая",              val:45, u:"мин", z:"Z2-3"},
+      {tone:"cross",kind:"Восстановление", ti:"Йога",                 val:40, u:"мин", z:"Z1"}
+    ],
+    "Пик": [
+      {tone:"key",  kind:"Ключевая",       ti:"Длинная",              long:true, u:"км", pc:"6:15/км", z:"Z2-3"},
+      {tone:"",     kind:"Качество",       ti:"Темповый бег",         share:0.22, u:"км", pc:"5:15/км", z:"Z4", quality:true},
+      {tone:"",     kind:"Бег",            ti:"Лёгкий бег",           share:0.30, u:"км", pc:"6:20/км", z:"Z2"},
+      {tone:"cross",kind:"Сила",           ti:"Силовая",              val:45, u:"мин", z:"Z2-3"},
+      {tone:"cross",kind:"Восстановление", ti:"Йога",                 val:40, u:"мин", z:"Z1"}
+    ],
+    "Подводка": [
+      {tone:"key",  kind:"Ключевая",       ti:"Длинная",              long:true, u:"км", pc:"6:15/км", z:"Z2"},
+      {tone:"",     kind:"Качество",       ti:"Темповый бег",         share:0.20, u:"км", pc:"5:15/км", z:"Z4", quality:true},
+      {tone:"",     kind:"Бег",            ti:"Лёгкий бег",           share:0.30, u:"км", pc:"6:20/км", z:"Z2"},
+      {tone:"cross",kind:"Восстановление", ti:"Йога",                 val:40, u:"мин", z:"Z1"}
+    ]
+  },
+  pauseSessions: [
+    {tone:"rest", kind:"Каникулы", ti:"Пауза"},
+    {tone:"cross",kind:"Мягко",    ti:"Растяжка / йога"},
+    {tone:"cross",kind:"Фон",      ti:"Прогулки"}
+  ],
+  desc: {                            // оборот карточек, универсальные описания
+    "Длинная":"Самая долгая пробежка недели в ровном лёгком темпе. Разминка 5 минут шагом, дальше бег без ускорений. Можно говорить полными фразами. Пей воду, если дольше часа.",
+    "Лёгкий бег":"Спокойный бег в разговорном темпе. Задача набрать километры без усталости. Если тяжело, замедляйся или переходи на шаг.",
+    "Интервалы":"Разминка 10 минут легко. Затем 6 отрезков по 1 минуте бодро, между ними 2 минуты трусцой. Заминка 10 минут легко. Отрезки быстрые, но не на пределе.",
+    "Темповый бег":"Разминка 10 минут легко. Затем 15-20 минут в крепком темпе, когда говорить можно только короткими фразами. Заминка 10 минут легко.",
+    "Функционал / пилатес":"Своя тренировка на силу и кор: приседания, выпады, планка, ягодичный мост. Ставь через день от длинной.",
+    "Силовая":"Одна силовая в неделю на ноги и кор: приседания, выпады, тяга, планка. Умеренный вес, 3 подхода по 8-12. Не в день длинной и не накануне.",
+    "Йога":"Мягкая практика на подвижность и дыхание. Бёдра, икры, спина. Хорошо на следующий день после длинной.",
+    "Пауза":"Каникулы. Прогулки, лёгкая растяжка, отдых. Пауза до двух недель почти не откатывает форму.",
+    "Растяжка / йога":"Мягкая растяжка по желанию, без усилий.",
+    "Прогулки":"Любое движение в удовольствие."
+  },
+  recs: {                            // [текст, источник] по фазам, показываются по кругу
+    "Возвращение":[["Первые пробежки делай короткими и медленными. Тело вспоминает бег быстрее, чем кажется.","Pfitzinger, Faster Road Racing"],["Держи почти весь бег в лёгкой зоне. По модели 80/20 около 80% времени приходится на низкую интенсивность.","Fitzgerald, 80/20 Running"],["Возвращай по одной пробежке за раз. Для привычки важна частота.","Daniels, Running Formula"]],
+    "База":[["Наращивай объём плавно, до 10% в неделю. Так связки и сердце адаптируются безопасно.","Friel, Библия триатлета"],["Длинную удлиняй по 1-2 км за раз. Спешка на этом шаге даёт травмы.","Pfitzinger, Faster Road Racing"],["Большую часть недели беги в разговорном темпе. Аэробная база строится именно так.","Fitzgerald, 80/20 Running"],["Каждую четвёртую неделю делай разгрузочную. Тело растёт во время восстановления.","Friel, Библия триатлета"],["Добавляй ускорения по 15-20 секунд в конце лёгких пробежек. Это бережно развивает экономичность.","Daniels, Running Formula"],["Ставь силовые 1-2 раза в неделю. У бегунов это заметно снижает риск травм.","Blagrove, Strength and Conditioning for Endurance Running"],["Держи достаточно углеводов под объём. Энергии должно хватать на все тренировки.","Jeukendrup, mysportscience"],["Холмы в лёгком темпе дают силу без интервалов.","Daniels, Running Formula"]],
+    "Развитие":[["Добавляй темповые отрезки в целевом темпе забега. Ноги учатся держать скорость дольше.","Pfitzinger, Faster Road Racing"],["Пороговый бег на 5-8 км поднимает потолок выносливости.","Daniels, Running Formula"],["Часть длинной пробеги в темпе, близком к целевому. Это репетиция забега.","Pfitzinger, Faster Road Racing"],["Пробуй питьё и гели на длинных. Желудок тоже тренируется.","Jeukendrup, mysportscience"],["Держи лёгкие дни действительно лёгкими. Восстановление между качественными сессиями решает.","Seiler, поляризованная модель"]],
+    "Пик":[["Самую длинную пробежку ставь за 2-3 недели до старта.","Pfitzinger, Faster Road Racing"],["На длинных отрабатывай питание забега целиком. В день старта ничего нового.","Jeukendrup, mysportscience"],["После пиковой недели дай телу лишний день отдыха. Форма закрепляется в покое.","Friel, Библия триатлета"]],
+    "Подводка":[["Снижай объём на 40-60%. Короткие быстрые отрезки оставляй, свежесть копится без потери формы.","Pfitzinger, Faster Road Racing"],["В последние дни больше сна и углеводов. Тело запасает гликоген к старту.","Jeukendrup, mysportscience"]]
+  },
+  pauseRec: ["На каникулах хватит прогулок и лёгкой растяжки. Пауза до двух недель почти не откатывает форму.","Seiler"],
+  milestones: [                      // {label, value, unit, week}; week: null значит найти первую неделю, где longRun >= value
+    {label:"Первая 10-ка", value:10, unit:"км", week:null},
+    {label:"Первая 15-ка", value:15, unit:"км", week:null},
+    {label:"Тест 10 км в темпе", value:10, unit:"км", week:45},
+    {label:"Самая длинная", value:19, unit:"км", week:52},
+    {label:"Забег", value:21.1, unit:"км", week:54}
+  ],
+  monitor: [
+    ["Пульс на лёгком беге","Раз в 2-3 недели пробеги 5 км в одном и том же лёгком темпе и посмотри средний пульс. Он должен постепенно падать. Это самый честный признак роста базы."],
+    ["Длинная","Главный вопрос после неё: как ноги на следующий день. Лёгкая усталость норма, боль в суставе или связке нет."],
+    ["Восстановление в WHOOP","Смотри тренд за неделю, а не один день. Зелёный чаще жёлтого значит нагрузка подходит. Красный два дня подряд значит тело просит паузу."],
+    ["VO₂max","Сверяй с прогнозом раз в месяц. Отставание на 1-2 пункта нормально, цифра в часах и так приблизительная."],
+    ["Сон и аппетит","Плохой сон и пропавший аппетит две недели подряд это ранний сигнал перегруза. Сними одну качественную тренировку и посмотри, вернётся ли."]
+  ],
+  nutrition: [                       // size: "wide" | "tall" | ""; dark: true для акцентной; num: крупная цифра (опционально)
+    {size:"wide", dark:true, k:"Весь год", h:"Ешь достаточно", p:"При 47 кг и растущей нагрузке главный риск это недобор энергии. Никаких дефицитов на этапах роста объёма. Три полноценных приёма пищи плюс перекус вокруг тренировки.", s:"RED-S, консенсус МОК"},
+    {size:"", k:"Возвращение", h:"Режим", p:"Наладить ритм еды и воду. 30 мл воды на кг веса в день, около 1,4 л.", s:"Jeukendrup"},
+    {size:"", k:"База", h:"Углеводы под объём", p:"5 г углеводов на кг веса в день, около 235 г. Белок 1,6 г на кг, около 75 г, для восстановления.", s:"Jeukendrup"},
+    {size:"tall", k:"Развитие", h:"Заправка на длинной", p:"Длинные дольше 75 минут: 30 г углеводов в час. Пробуй гели, изотоник, банан. Желудок тренируется так же, как ноги.", num:"30", numUnit:"г/ч", s:"Jeukendrup"},
+    {size:"", k:"Пик", h:"Репетиция забега", p:"На самых длинных повторяй завтрак, питьё и гели дня старта один в один.", s:"Pfitzinger"},
+    {size:"", k:"Подводка", h:"Загрузка", p:"За 2 дня до старта 7 г углеводов на кг, около 330 г в день. Ничего нового на тарелке.", s:"Jeukendrup"},
+    {size:"wide", k:"День забега", h:"Завтрак за 3 часа, гель на 8 км и на 15 км", p:"Завтрак из привычных углеводов, 300 мл воды. На дистанции пей на каждом пункте по паре глотков. Гель запивай водой.", s:"Jeukendrup"}
+  ],
+  trouble: [
+    ["Пропуск до 1 недели","Ничего не навёрстывай. Продолжай план с текущей недели, будто пропуска не было."],
+    ["Пропуск 2-3 недели","Вернись на 2 недели назад по таблице и иди оттуда. Первую неделю после паузы без интервалов."],
+    ["Пропуск больше месяца","Начни с фазы Возвращение, потом продолжай с той недели, где тебя ждёт таблица по датам. Если до забега стало мало времени, попроси пересобрать план."],
+    ["Болезнь","Температура или симптомы ниже шеи, кашель и слабость, значит полный отдых до выздоровления плюс 2 дня. Только насморк, можно лёгкий бег без интервалов."],
+    ["Жёлтое восстановление","Оставь тренировку, но сделай её лёгкой: интервалы или темп замени лёгким бегом той же длины."],
+    ["Красное восстановление","День отдыха или прогулка. Длинную передвинь на ближайший зелёный день."],
+    ["Неделя с малым временем","Оставь длинную и одну качественную. Остальное убирай без вины, база от этого не рухнет."],
+    ["Боль","Усталость мышц норма. Острая или точечная боль в суставе, стопе, голени, пауза 3 дня. Если не проходит, к спортивному врачу до продолжения плана."],
+    ["Переезд, отпуск, фест","Заранее скажи, на какие недели выпадаешь. План сдвинется и даст мягкий вход обратно."]
+  ],
+  method: "Методика: периодизация Friel и Pfitzinger, зоны Daniels, интенсивность 80/20, питание Jeukendrup и RED-S"
+};
+/* ================= конец PLAN ================= */
+
+(function(){
+  var P=PLAN, N=P.weeks;
+  var f=(P.gender==='f');
+  function phaseOf(w){for(var i=0;i<P.phases.length;i++)if(w>=P.phases[i].from&&w<=P.phases[i].to)return P.phases[i].name;return P.phases[P.phases.length-1].name;}
+  function phaseStart(n){for(var i=0;i<P.phases.length;i++)if(P.phases[i].name===n)return P.phases[i].from;return 1;}
+  function isDeload(w){return P.deloadWeeks.indexOf(w)>=0;}
+  function isPause(w){return P.pauseWeeks.hasOwnProperty(w);}
+  function vol(w){return P.volume[w-1];}
+  function lng(w){return P.longRun[w-1];}
+  var hasVo2=P.vo2max&&P.vo2max.length===N;
+  function vo2(w){return P.vo2max[w-1];}
+  var BASE=new Date(P.startDate);
+  var MON=['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+  function ds(w){var d=new Date(BASE.getTime()+(w-1)*7*86400000);return d.getDate()+' '+MON[d.getMonth()];}
+  function accent(w){if(isPause(w))return'каникулы';if(isDeload(w))return'разгрузка';var p=phaseOf(w);
+    var q=(P.sessions[p]||[]).filter(function(s){return s.quality;})[0];return q?q.ti.toLowerCase():'легко';}
+
+  function week(w){
+    var p=phaseOf(w),v=vol(w),lr=lng(w),dl=isDeload(w);
+    if(isPause(w))return{p:p,v:v,lr:lr,s:P.pauseSessions.map(function(x){return Object.assign({},x);}),pause:true};
+    var s=(P.sessions[p]||[]).map(function(x){var o=Object.assign({},x);
+      if(o.long)o.val=lr; else if(o.share)o.val=Math.max(3,Math.round(v*o.share));
+      if(dl&&o.quality){o.ti='Лёгкий бег';o.kind='Бег';o.pc='6:35/км';o.z='Z2';}
+      return o;});
+    return{p:p,v:v,lr:lr,s:s};
+  }
+
+  // header
+  document.title='План: '+P.name;
+  document.getElementById('title').textContent=P.title;
+  document.getElementById('goal').textContent=P.goal;
+  document.getElementById('brVerb').textContent=f?'Ты выбрала':'Ты выбрал';
+  document.getElementById('brN').textContent=N;
+  document.getElementById('troubleT').textContent=f?'Что делать, если сбилась':'Что делать, если сбился';
+  document.getElementById('readyH').textContent='Готовность к '+String(P.distance).replace('.',',');
+  document.getElementById('method').textContent=P.method;
+  document.getElementById('zfoot').textContent=P.zonesNote;
+  if(!hasVo2){document.getElementById('vo2sec').style.display='none';document.getElementById('mVo2Box').style.display='none';}
+  else{document.getElementById('vo2a').textContent=vo2(1);document.getElementById('vo2b').textContent='≈ '+Math.round(vo2(N));}
+
+  // bands, labels
+  var bands=document.getElementById('bands'),plabels=document.getElementById('plabels'),pbands=document.getElementById('pbands');
+  P.phases.forEach(function(ph){var len=ph.to-ph.from+1;
+    var b=document.createElement('div');b.className='b';b.style.flex=len;b.style.background=ph.color;bands.appendChild(b);
+    var l=document.createElement('div');l.style.flex=len;l.textContent=ph.name;plabels.appendChild(l);
+    var s=document.createElement('span');s.innerHTML='<b>'+ph.name+'</b>нед '+ph.from+'-'+ph.to;pbands.appendChild(s);});
+  var ticks=document.getElementById('ticks');for(var i=4;i<N;i+=4){var t=document.createElement('i');t.style.left=(i/N*100)+'%';ticks.appendChild(t);}
+  var pz=document.getElementById('pauses');Object.keys(P.pauseWeeks).forEach(function(k){var e=document.createElement('div');e.className='ny';e.style.left=((k-0.5)/N*100)+'%';e.innerHTML='<span>'+P.pauseWeeks[k]+'</span>';pz.appendChild(e);});
+
+  // zones
+  var zb=document.getElementById('zbody');P.zones.forEach(function(z){var tr=document.createElement('tr');
+    tr.innerHTML='<td><div class="zn"><span class="dot" style="background:'+z.color+'"></span><span class="zc">'+z.z+'</span>'+z.name+'</div></td><td>'+z.pace+'</td><td class="hr">'+z.hr+'</td><td class="why">'+z.why+'</td>';zb.appendChild(tr);});
+
+  // charts
+  var NS='http://www.w3.org/2000/svg';
+  function el(n,a){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);return e;}
+  var maxV=Math.max.apply(null,P.volume)*1.1;
+  var svg=document.getElementById('vchart'),W=1000,H=190,pad=6;svg.setAttribute('viewBox','0 0 '+W+' '+H);
+  var CX=function(w){return pad+(w-1)/(N-1)*(W-2*pad);},CY=function(v){return H-8-v/maxV*(H-30);};
+  P.phases.forEach(function(ph,i){svg.appendChild(el('rect',{x:CX(ph.from),y:0,width:CX(Math.min(ph.to+1,N))-CX(ph.from),height:H,fill:i%2?'#ffffff':'#f3f3f5'}));});
+  var d='M '+CX(1)+' '+CY(vol(1));for(var w=2;w<=N;w++)d+=' L '+CX(w)+' '+CY(vol(w));
+  svg.appendChild(el('path',{d:d+' L '+CX(N)+' '+H+' L '+CX(1)+' '+H+' Z',fill:'#1d1d1f','fill-opacity':'0.06'}));
+  svg.appendChild(el('path',{d:d,fill:'none',stroke:'#1d1d1f','stroke-width':'2'}));
+  var dl='M '+CX(1)+' '+CY(lng(1));for(var w2=2;w2<=N;w2++)dl+=' L '+CX(w2)+' '+CY(lng(w2));
+  svg.appendChild(el('path',{d:dl,fill:'none',stroke:'#c7c7cc','stroke-width':'2','stroke-dasharray':'1 5','stroke-linecap':'round'}));
+  Object.keys(P.pauseWeeks).forEach(function(k){svg.appendChild(el('line',{x1:CX(+k),x2:CX(+k),y1:0,y2:H,stroke:'#c7c7cc','stroke-dasharray':'3 3'}));});
+  var cmark=el('line',{y1:0,y2:H,stroke:'#1d1d1f','stroke-width':'1','stroke-opacity':'.35'}),cdot=el('circle',{r:5,fill:'#1d1d1f',stroke:'#fff','stroke-width':'2'});
+  svg.appendChild(cmark);svg.appendChild(cdot);
+
+  var vdot,VX,VY;
+  if(hasVo2){
+    var vs=document.getElementById('vo2chart'),VH=120;vs.setAttribute('viewBox','0 0 '+W+' '+VH);
+    var lo=Math.min.apply(null,P.vo2max)-2,hi=Math.max.apply(null,P.vo2max)+1.5;
+    VX=CX;VY=function(v){return VH-6-(v-lo)/(hi-lo)*(VH-16);};
+    var vd='M '+VX(1)+' '+VY(vo2(1));for(var w3=2;w3<=N;w3++)vd+=' L '+VX(w3)+' '+VY(vo2(w3));
+    vs.appendChild(el('path',{d:vd+' L '+VX(N)+' '+VH+' L '+VX(1)+' '+VH+' Z',fill:'#1d1d1f','fill-opacity':'0.05'}));
+    vs.appendChild(el('path',{d:vd,fill:'none',stroke:'#1d1d1f','stroke-width':'2'}));
+    Object.keys(P.pauseWeeks).forEach(function(k){vs.appendChild(el('line',{x1:VX(+k),x2:VX(+k),y1:0,y2:VH,stroke:'#c7c7cc','stroke-dasharray':'3 3'}));});
+    vdot=el('circle',{r:5,fill:'#1d1d1f',stroke:'#fff','stroke-width':'2'});vs.appendChild(vdot);
+  }
+
+  // weekly table
+  var body=document.getElementById('wkbody');
+  for(var w4=1;w4<=N;w4++){var m=week(w4),ac=accent(w4),pr=Math.min(100,Math.round(m.lr/P.distance*100));
+    var tr=document.createElement('tr');tr.dataset.w=w4;
+    tr.innerHTML='<td class="b">'+w4+'</td><td>'+m.p+'</td><td class="b">'+m.v+' км</td><td>'+m.lr+' км</td><td class="'+(ac==='разгрузка'||ac==='каникулы'?'mut':'')+'">'+ac+'</td><td><span class="pg"><i style="width:'+pr+'%"></i></span><span class="pgv">'+pr+'%</span></td>';
+    body.appendChild(tr);}
+
+  // milestones
+  var mh=document.getElementById('miles');
+  P.milestones.forEach(function(x,i){var wk=x.week;if(wk==null){wk=N;for(var q=1;q<=N;q++)if(lng(q)>=x.value){wk=q;break;}}
+    var e=document.createElement('div');e.className='mi'+(i===P.milestones.length-1?' last':'');
+    e.innerHTML='<div class="mw">'+x.label+'</div><div class="mn">'+x.value+'<small> '+x.unit+'</small></div><div class="ml">неделя '+wk+', '+ds(wk)+'</div>';mh.appendChild(e);});
+
+  // monitor, trouble
+  function rows(host,arr){arr.forEach(function(r){var e=document.createElement('div');e.className='mrow';e.innerHTML='<div class="mt">'+r[0]+'</div><div class="md">'+r[1]+'</div>';host.appendChild(e);});}
+  rows(document.getElementById('monitor'),P.monitor);rows(document.getElementById('trouble'),P.trouble);
+
+  // nutrition
+  var bh=document.getElementById('bento');P.nutrition.forEach(function(n){var e=document.createElement('div');e.className='bt '+(n.size||'')+(n.dark?' dark':'');
+    e.innerHTML='<div class="bk">'+n.k+'</div><div class="bh">'+n.h+'</div><div class="bp">'+n.p+'</div>'+(n.num?'<div class="bnum">'+n.num+'<small> '+n.numUnit+'</small></div>':'')+'<div class="bs">'+n.s+'</div>';bh.appendChild(e);});
+
+  // render week
+  function renderWeek(w){
+    var m=week(w);
+    document.getElementById('selWk').textContent='Неделя '+w;
+    document.getElementById('selPh').textContent=m.pause?'Каникулы':m.p;
+    document.getElementById('mVol').textContent=m.v;
+    document.getElementById('mLong').textContent=m.lr;
+    var tot=0;m.s.forEach(function(x){if(!x.val)return;if(x.u==='км')tot+=x.val*P.minPerKm;else tot+=x.val;});
+    document.getElementById('mHrs').textContent=Math.floor(tot/60)+':'+((Math.round(tot%60)<10?'0':'')+Math.round(tot%60));
+    if(hasVo2){document.getElementById('mVo2').textContent=vo2(w);document.getElementById('mGain').textContent='+'+Math.round((vo2(w)-vo2(1))/vo2(1)*100)+'%';}
+    document.getElementById('brWk').textContent=w;
+    var host=document.getElementById('sessions');host.innerHTML='';
+    m.s.forEach(function(x){var e=document.createElement('div');e.className='flip';
+      var val=x.val?'<div class="val">'+x.val+'<small> '+(x.u||'')+'</small></div>':'<div class="val"></div>';
+      var chip=x.z?'<span class="zchip">'+x.z+'</span>':'';
+      e.innerHTML='<div class="ss front'+(x.tone?' '+x.tone:'')+'"><div class="kind">'+x.kind+'</div><div class="ti">'+x.ti+'</div>'+val+'<div class="pc">'+(x.pc||'')+'</div>'+chip+'<span class="fh">описание</span></div>'+
+        '<div class="ss back'+(x.tone?' '+x.tone:'')+'"><div class="kind">'+x.ti+'</div><div class="bd">'+(P.desc[x.ti]||'')+'</div><span class="fh">назад</span></div>';
+      e.addEventListener('click',function(){e.classList.toggle('on');});host.appendChild(e);});
+    var rec;if(m.pause)rec=P.pauseRec;else{var arr=P.recs[m.p]||[['','']];rec=arr[((w-phaseStart(m.p))%arr.length+arr.length)%arr.length];}
+    document.getElementById('recbar').innerHTML='<b>Рекомендация недели.</b> '+rec[0]+'<span class="src">'+rec[1]+'</span>';
+    cmark.setAttribute('x1',CX(w));cmark.setAttribute('x2',CX(w));cdot.setAttribute('cx',CX(w));cdot.setAttribute('cy',CY(vol(w)));
+    if(hasVo2){vdot.setAttribute('cx',VX(w));vdot.setAttribute('cy',VY(vo2(w)));}
+    document.querySelectorAll('#wkbody tr').forEach(function(tr){tr.classList.toggle('on',+tr.dataset.w===w);});
+  }
+
+  // scrubber
+  var rail=document.getElementById('rail'),thumb=document.getElementById('thumb');
+  function setW(w){w=Math.max(1,Math.min(N,Math.round(w)));thumb.style.left=((w-0.5)/N*100)+'%';document.getElementById('thumbN').textContent=w;renderWeek(w);}
+  function fromX(x){var r=rail.getBoundingClientRect();return (x-r.left)/r.width*N+0.5;}
+  var drag=false;
+  function down(e){drag=true;rail.classList.add('drag');move(e);e.preventDefault();}
+  function move(e){if(!drag)return;setW(fromX(e.touches?e.touches[0].clientX:e.clientX));}
+  function up(){drag=false;rail.classList.remove('drag');}
+  rail.addEventListener('mousedown',down);window.addEventListener('mousemove',move);window.addEventListener('mouseup',up);
+  rail.addEventListener('touchstart',down,{passive:false});window.addEventListener('touchmove',move,{passive:false});window.addEventListener('touchend',up);
+  setW(1);
+})();
+</script>
+</body>
+</html>

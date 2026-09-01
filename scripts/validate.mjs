@@ -18,10 +18,22 @@ export function validatePlan(fm) {
   if (errors.length) return { errors, warns };
 
   const N = fm.weeks_total;
+  if (!Number.isInteger(N) || N < 4 || N > 110) err(`weeks_total ${N}: ожидается целое от 4 до 110`);
+  if (isNaN(new Date(fm.start_date).getTime())) err(`start_date не читается: ${fm.start_date}`);
+  if (isNaN(new Date(fm.race_date).getTime())) err(`race_date не читается: ${fm.race_date}`);
   const vol = fm.volume_km, long = fm.long_km, vo2 = fm.vo2max || [];
   if (vol.length !== N) err(`volume_km: ${vol.length} чисел, а weeks_total ${N}`);
   if (long.length !== N) err(`long_km: ${long.length} чисел, а weeks_total ${N}`);
   if (vo2.length && vo2.length !== N) err(`vo2max: ${vo2.length} чисел, а weeks_total ${N}`);
+  if (errors.length) return { errors, warns };
+
+  const pause = new Set(fm.pause_weeks || []);
+  for (let w = 1; w <= N; w++) {
+    const v = vol[w - 1], l = long[w - 1];
+    if (typeof v !== 'number' || !isFinite(v) || v < 0 || (v === 0 && !pause.has(w)))
+      err(`неделя ${w}: объём ${v} не положительное число`);
+    if (typeof l !== 'number' || !isFinite(l) || l < 0) err(`неделя ${w}: длинная ${l} не число`);
+  }
   if (errors.length) return { errors, warns };
 
   // фазы подряд и покрывают 1..N
@@ -33,10 +45,12 @@ export function validatePlan(fm) {
   }
   if (cursor - 1 !== N) err(`фазы кончаются на неделе ${cursor - 1}, а недель ${N}`);
 
-  const pause = new Set(fm.pause_weeks || []);
   const deload = new Set(fm.deload_weeks);
   for (const w of [...pause, ...deload])
     if (w < 1 || w > N) err(`служебная неделя ${w} вне диапазона 1..${N}`);
+  if (deload.size !== fm.deload_weeks.length) warn('в deload_weeks есть дубли');
+  if (pause.size !== (fm.pause_weeks || []).length) warn('в pause_weeks есть дубли');
+  for (const w of pause) if (deload.has(w)) warn(`неделя ${w} одновременно каникулы и разгрузка`);
 
   // дата забега попадает в последнюю неделю плана
   const day = 86400000;
@@ -94,6 +108,16 @@ export function validatePlan(fm) {
     warn('марафон при менее чем 3 беговых в неделю — по методике этого мало');
   if (fm.vo2max_start != null && vo2.length && Math.abs(vo2[0] - fm.vo2max_start) > 0.6)
     warn(`первое значение vo2max ${vo2[0]} далеко от vo2max_start ${fm.vo2max_start}`);
+  if (vo2.length && vo2[N - 1] < vo2[0]) warn('прогноз VO₂max к забегу ниже стартового');
+
+  // рамки методики: срок и пиковый объём под дистанцию и цель
+  const isM = fm.distance_km > 30;
+  const minWeeks = isM ? 18 : 12;
+  if (N < minWeeks) warn(`${N} недель меньше минимума ${minWeeks} для этой дистанции (methodology)`);
+  const peak = Math.max(...vol);
+  const [lo, hi] = fm.goal === 'time' ? (isM ? [65, 90] : [45, 60]) : (isM ? [50, 60] : [30, 40]);
+  if (peak < lo * 0.9) warn(`пиковый объём ${peak} км ниже ориентира ${lo}-${hi} для этой цели`);
+  if (peak > hi * 1.15) warn(`пиковый объём ${peak} км выше ориентира ${lo}-${hi} для этой цели`);
 
   return { errors, warns };
 }

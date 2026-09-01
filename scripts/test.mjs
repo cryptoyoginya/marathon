@@ -41,6 +41,14 @@ check('предупреждает об отсутствии подводки', w
 check('предупреждает о негоночной последней неделе', warnsOf({ long_km: fm.long_km.map((x, i) => i === 11 ? 12 : x) }));
 check('предупреждает о goal time без времени', warnsOf({ goal: 'time' }));
 
+const warnHas = (patch, sub) => validatePlan({ ...fm, ...patch }).warns.some(w => w.includes(sub));
+check('ловит нечитаемую дату забега', errs({ race_date: 'скоро' }));
+check('ловит нулевой объём недели', errs({ volume_km: fm.volume_km.map((x, i) => i === 2 ? 0 : x) }));
+check('ловит нечисло в массиве', errs({ long_km: fm.long_km.map((x, i) => i === 1 ? 'пять' : x) }));
+check('предупреждает о дублях разгрузок', warnHas({ deload_weeks: [4, 4, 8] }, 'дубли'));
+check('предупреждает о пике не по цели', warnHas({ goal: 'time', goal_time: '1:55' }, 'пиковый объём'));
+check('предупреждает о сроке меньше минимума', warnHas({ distance_km: 42.2 }, 'минимума'));
+
 console.log('рендерер:');
 const tmp = mkdtempSync(join(tmpdir(), 'marathon-test-'));
 try {
@@ -61,6 +69,8 @@ try {
   check('ловит рассинхрон PLAN и plan.md', broken(d => d.replace('weeks: 12', 'weeks: 13')));
   check('ловит отсутствие easyPace при разгрузках', broken(d => d.replace(/^.*easyPace.*\n/m, '')));
   check('ловит отсутствие desc у карточки', broken(d => d.replace('"Темповая":"Разминка', '"Темповая-нет":"Разминка')));
+  check('ловит темп у небеговой карточки', broken(d => d.replace('ti:"Йога",                 val:40', 'ti:"Йога", pc:"6:00/км", val:40')));
+  check('ловит питание без источника', broken(d => d.replace(', s:"Jeukendrup"}', '}')));
   let threw;
 
   // сломанный plan-data.js не должен ронять рендерер молча

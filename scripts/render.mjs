@@ -58,7 +58,13 @@ else fm.phases.forEach((p, i) => {
 // 3. Структура PLAN под шаблон
 if (!['f', 'm'].includes(P.gender)) err('PLAN.gender должен быть f или m');
 if (typeof P.minPerKm !== 'number') err('PLAN.minPerKm должен быть числом');
+if (!/^\d{4}-\d{2}-\d{2}$/.test(P.startDate || '')) err('PLAN.startDate не в формате ГГГГ-ММ-ДД');
+if (P.easyPace && !/^\d{1,2}:\d\d\/км$/.test(P.easyPace))
+  warn(`easyPace «${P.easyPace}» не похож на темп вида 7:00/км`);
 if (!P.zones || P.zones.length !== 5) err('PLAN.zones: нужно 5 зон');
+for (const z of P.zones || [])
+  for (const k of ['z', 'name', 'pace', 'hr', 'why', 'color'])
+    if (z[k] == null) err(`зона ${z.z || '?'}: нет поля ${k}, на странице будет undefined`);
 for (const p of P.phases || []) {
   const s = (P.sessions || {})[p.name];
   if (!s || !s.length) { err(`нет сессий для фазы ${p.name}`); continue; }
@@ -67,9 +73,33 @@ for (const p of P.phases || []) {
   if (runs !== fm.runs_per_week)
     warn(`фаза ${p.name}: беговых сессий ${runs}, а runs_per_week ${fm.runs_per_week}`);
   if (s.filter(x => x.long).length !== 1) err(`фаза ${p.name}: длинная должна быть ровно одна`);
+  for (const x of s) {
+    const running = x.long || x.share;
+    if (running && !x.pc) warn(`фаза ${p.name}, «${x.ti}»: беговая карточка без целевого темпа`);
+    if (!running && x.pc) err(`фаза ${p.name}, «${x.ti}»: темп у небеговой карточки, а темп только у бега`);
+    if (!running && x.val == null) err(`фаза ${p.name}, «${x.ti}»: своя тренировка без длительности val`);
+  }
+  const shares = s.filter(x => x.share).reduce((a, x) => a + x.share, 0);
+  if (shares > 0.7) warn(`фаза ${p.name}: доли качества в сумме ${shares}, длинной не хватит места`);
   const recs = (P.recs || {})[p.name];
   if (!recs || !recs.length) err(`нет рекомендаций для фазы ${p.name}`);
 }
+// контент, который шаблон отрисует как undefined, если полей нет
+const pairRows = (name, arr) => {
+  for (const r of arr || [])
+    if (!Array.isArray(r) || r.length !== 2 || r.some(x => typeof x !== 'string'))
+      err(`${name}: каждая строка должна быть парой [заголовок, текст]`);
+};
+pairRows('monitor', P.monitor);
+pairRows('trouble', P.trouble);
+for (const n of P.nutrition || [])
+  for (const k of ['k', 'h', 'p', 's'])
+    if (n[k] == null) err(`питание «${n.k || n.h || '?'}»: нет поля ${k}`);
+for (const [ph, arr] of Object.entries(P.recs || {}))
+  for (const r of arr)
+    if (!Array.isArray(r) || r.length !== 2) err(`recs ${ph}: рекомендация должна быть парой [текст, источник]`);
+for (const [k, label] of Object.entries(P.pauseWeeks || {}))
+  if (!label) err(`pauseWeeks ${k}: пустая подпись`);
 // оборот есть у каждой карточки; на разгрузке интервалы станут «Лёгкий бег»
 const tis = new Set();
 for (const arr of Object.values(P.sessions || {})) for (const s of arr) tis.add(s.ti);
@@ -85,10 +115,16 @@ if ((fm.pause_weeks || []).length) {
   if (!P.pauseSessions || !P.pauseSessions.length) err('есть pause_weeks, но нет PLAN.pauseSessions');
   if (!P.pauseRec || P.pauseRec.length !== 2) err('есть pause_weeks, но нет PLAN.pauseRec [текст, источник]');
 }
-for (const m of P.milestones || [])
+for (const m of P.milestones || []) {
   if (m.week != null && (m.week < 1 || m.week > P.weeks)) err(`веха «${m.label}»: неделя ${m.week} вне плана`);
-if ((P.milestones || []).length && P.milestones[P.milestones.length - 1].week !== P.weeks)
-  warn('последняя веха не на последней неделе (обычно это забег)');
+  if (m.week == null && !(P.longRun || []).some(l => l >= m.value))
+    warn(`веха «${m.label}»: длинная ${m.value} км не достигается в плане`);
+}
+if ((P.milestones || []).length) {
+  const last = P.milestones[P.milestones.length - 1];
+  if (last.week !== P.weeks) warn('последняя веха не на последней неделе (обычно это забег)');
+  if (Math.abs(last.value - P.distance) > 0.01) warn('последняя веха не равна дистанции забега');
+}
 if (!P.nutrition || !P.nutrition.length) err('пустой блок nutrition');
 if (!P.trouble || !P.trouble.length) err('пустой блок trouble');
 if (!P.method) err('нет строки method');

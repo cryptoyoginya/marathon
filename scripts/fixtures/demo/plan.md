@@ -16,13 +16,13 @@ floating_days: true
 phases:
   - {name: Подготовка, from: 1, to: 2}
   - {name: База, from: 3, to: 8}
-  - {name: Развитие, from: 9, to: 10}
-  - {name: Пик, from: 11, to: 11}
-  - {name: Подводка, from: 12, to: 12}
+  - {name: Развитие, from: 9, to: 9}
+  - {name: Пик, from: 10, to: 10}
+  - {name: Подводка, from: 11, to: 12}
 pause_weeks: []
 deload_weeks: [4, 8]
-volume_km: [20,21,22,15, 23,24,25,17, 26,27,28,30]
-long_km: [8,9,9,6, 10,10,11,7, 11,12,12,21.1]
+volume_km: [20,21,22,15, 23,24,25,17, 26,28, 19,25]
+long_km: [8,9,9,6, 10,10,11,7, 11,12, 8,21.1]
 ---
 
 # План: Демо

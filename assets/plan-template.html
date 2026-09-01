@@ -271,6 +271,7 @@ var PLAN = {
   longRun: [],                       // км по неделям
   vo2max: [],                        // прогноз по неделям, пустой массив если VO₂max неизвестен
   minPerKm: 6.5,                     // средний темп для расчёта времени
+  easyPace: "6:35/км",               // темп лёгкого бега (замена интервалов в разгрузку)
   zones: [
     {z:"Z1", name:"Восстановление", pace:"6:50+",     hr:"< 65%",  why:"Лёгкие дни, ходьба",           color:"#c7c7cc"},
     {z:"Z2", name:"Аэробный",       pace:"6:00-6:35", hr:"65-79%", why:"Основа: лёгкий бег и длинные", color:"#98989d"},
@@ -403,7 +404,7 @@ var PLAN = {
     if(isPause(w))return{p:p,v:v,lr:lr,s:P.pauseSessions.map(function(x){return Object.assign({},x);}),pause:true};
     var s=(P.sessions[p]||[]).map(function(x){var o=Object.assign({},x);
       if(o.long)o.val=lr; else if(o.share)o.val=Math.max(3,Math.round(v*o.share));
-      if(dl&&o.ti==='Интервалы'){o.ti='Лёгкий бег';o.kind='Бег';o.pc='6:35/км';o.z='Z2';}
+      if(dl&&o.ti==='Интервалы'){o.ti='Лёгкий бег';o.kind='Бег';o.pc=P.easyPace||'6:35/км';o.z='Z2';}
       return o;});
     return{p:p,v:v,lr:lr,s:s};
   }
@@ -490,7 +491,7 @@ var PLAN = {
     document.getElementById('selPh').textContent=m.pause?'Каникулы':m.p;
     document.getElementById('mVol').textContent=m.v;
     document.getElementById('mLong').textContent=m.lr;
-    var tot=0;m.s.forEach(function(x){if(!x.val)return;if(x.u==='км')tot+=x.val*P.minPerKm;else tot+=x.val;});
+    var tot=0;if(m.pause)tot=m.v*P.minPerKm;else m.s.forEach(function(x){if(!x.val)return;if(x.u==='км')tot+=x.val*P.minPerKm;else tot+=x.val;});
     document.getElementById('mHrs').textContent=Math.floor(tot/60)+':'+((Math.round(tot%60)<10?'0':'')+Math.round(tot%60));
     if(hasVo2){document.getElementById('mVo2').textContent=vo2(w);document.getElementById('mGain').textContent='+'+Math.round((vo2(w)-vo2(1))/vo2(1)*100)+'%';}
     document.getElementById('brWk').textContent=w;

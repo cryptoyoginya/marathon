@@ -7,7 +7,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parseFrontmatter, evalPlanData } from './lib.mjs';
+import { parseFrontmatter, evalPlanData, smokeRun } from './lib.mjs';
 import { validatePlan } from './validate.mjs';
 
 const dir = process.argv[2];
@@ -74,8 +74,17 @@ for (const p of P.phases || []) {
 const tis = new Set();
 for (const arr of Object.values(P.sessions || {})) for (const s of arr) tis.add(s.ti);
 for (const s of P.pauseSessions || []) tis.add(s.ti);
-if (fm.deload_weeks.length && [...tis].includes('Интервалы')) tis.add('Лёгкий бег');
+const hasIntervals = [...tis].includes('Интервалы');
+if (fm.deload_weeks.length && hasIntervals) tis.add('Лёгкий бег');
 for (const ti of tis) if (!(P.desc || {})[ti]) err(`нет описания (desc) для карточки «${ti}»`);
+// разгрузочная замена интервалов должна идти в темпе лёгкой зоны этого человека
+if (fm.deload_weeks.length && hasIntervals && !P.easyPace)
+  err('нет PLAN.easyPace: на разгрузочных неделях лёгкий бег покажется с чужим темпом');
+// без этих полей страница с каникулами падает в браузере
+if ((fm.pause_weeks || []).length) {
+  if (!P.pauseSessions || !P.pauseSessions.length) err('есть pause_weeks, но нет PLAN.pauseSessions');
+  if (!P.pauseRec || P.pauseRec.length !== 2) err('есть pause_weeks, но нет PLAN.pauseRec [текст, источник]');
+}
 for (const m of P.milestones || [])
   if (m.week != null && (m.week < 1 || m.week > P.weeks)) err(`веха «${m.label}»: неделя ${m.week} вне плана`);
 if ((P.milestones || []).length && P.milestones[P.milestones.length - 1].week !== P.weeks)
@@ -98,5 +107,10 @@ const endMark = '/* ================= конец PLAN ================= */';
 const endIdx = tpl.indexOf(endMark);
 if (startIdx < 0 || endIdx < 0) { console.error('✗ в шаблоне не найден блок PLAN'); process.exit(1); }
 const html = tpl.slice(0, startIdx) + dataCode.trimEnd() + '\n' + tpl.slice(endIdx);
+
+// 5. Смоук: скрипт страницы выполняется без исключений
+try { smokeRun(html); }
+catch (e) { console.error('✗ смоук страницы упал: ' + e.message); process.exit(1); }
+
 writeFileSync(join(dir, 'plan.html'), html);
 console.log(`ок: plan.html собран (${html.length} байт)` + (warns.length ? `, предупреждений ${warns.length}` : ''));

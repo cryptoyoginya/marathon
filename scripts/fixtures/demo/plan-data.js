@@ -9,16 +9,17 @@ var PLAN = {
   phases: [
     {name:"Подготовка", from:1,  to:2,  color:"#dcdce0"},
     {name:"База",       from:3,  to:8,  color:"#b6b6bc"},
-    {name:"Развитие",   from:9,  to:10, color:"#8e8e94"},
-    {name:"Пик",        from:11, to:11, color:"#5c5c61"},
-    {name:"Подводка",   from:12, to:12, color:"#c9c9ce"}
+    {name:"Развитие",   from:9,  to:9,  color:"#8e8e94"},
+    {name:"Пик",        from:10, to:10, color:"#5c5c61"},
+    {name:"Подводка",   from:11, to:12, color:"#c9c9ce"}
   ],
   pauseWeeks: {},
   deloadWeeks: [4,8],
-  volume: [20,21,22,15, 23,24,25,17, 26,27,28,30],
-  longRun: [8,9,9,6, 10,10,11,7, 11,12,12,21.1],
+  volume: [20,21,22,15, 23,24,25,17, 26,28, 19,25],
+  longRun: [8,9,9,6, 10,10,11,7, 11,12, 8,21.1],
   vo2max: [],
   minPerKm: 6.5,
+  easyPace: "6:30/км",
   zones: [
     {z:"Z1", name:"Восстановление", pace:"6:50+",     hr:"< 65%",  why:"Лёгкие дни, ходьба",           color:"#c7c7cc"},
     {z:"Z2", name:"Аэробный",       pace:"6:00-6:35", hr:"65-79%", why:"Основа: лёгкий бег и длинные", color:"#98989d"},

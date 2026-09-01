@@ -81,6 +81,20 @@ export function validatePlan(fm) {
     }
   }
 
+  // гоночная неделя и подводка
+  if (!isRace(N))
+    warn(`длинная последней недели ${long[N - 1]} не равна дистанции ${fm.distance_km}, а это гоночная неделя`);
+  if (N >= 3) {
+    const peak = Math.max(...vol.slice(0, N - 1));
+    if (vol[N - 2] > peak * 0.7)
+      warn(`неделя ${N - 1}: объём ${vol[N - 2]} больше 70% пика ${peak}, подводка требует снижения на 30-50%`);
+  }
+  if (fm.goal === 'time' && fm.goal_time == null) warn('goal: time, но goal_time пуст');
+  if (fm.distance_km > 30 && fm.runs_per_week < 3)
+    warn('марафон при менее чем 3 беговых в неделю — по методике этого мало');
+  if (fm.vo2max_start != null && vo2.length && Math.abs(vo2[0] - fm.vo2max_start) > 0.6)
+    warn(`первое значение vo2max ${vo2[0]} далеко от vo2max_start ${fm.vo2max_start}`);
+
   return { errors, warns };
 }
 

@@ -71,3 +71,23 @@ export function parseFrontmatter(text) {
 export function evalPlanData(code) {
   return new Function(`"use strict"; ${code}; return PLAN;`)();
 }
+
+// Смоук собранной страницы: выполняет её скрипт с proxy-заглушкой DOM.
+// Ловит класс ошибок «данные прошли проверки, но рантайм падает»
+// (битая сшивка, отсутствующее поле, на котором шаблон делает .map и т.п.).
+// Кидает исключение, если скрипт страницы падает.
+export function smokeRun(html) {
+  const m = html.match(/<script>([\s\S]*)<\/script>/);
+  if (!m) throw new Error('в plan.html нет блока <script>');
+  const handler = {
+    get(t, p) {
+      if (p === Symbol.toPrimitive) return () => 0;
+      return proxy;
+    },
+    set: () => true,
+    apply: () => proxy,
+    construct: () => proxy,
+  };
+  const proxy = new Proxy(function () {}, handler);
+  new Function('document', 'window', m[1])(proxy, proxy);
+}

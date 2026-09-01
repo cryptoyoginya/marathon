@@ -37,6 +37,9 @@ check('ловит длинную выше потолка дистанции', er
 check('предупреждает о росте объёма больше 10%', warnsOf({ volume_km: fm.volume_km.map((x, i) => i === 8 ? 30 : x) }));
 check('предупреждает о разгрузке не ниже соседней', warnsOf({ volume_km: fm.volume_km.map((x, i) => i === 3 ? 23 : x) }));
 check('предупреждает о скачке длинной больше 2 км', warnsOf({ long_km: fm.long_km.map((x, i) => i === 4 ? 12 : x) }));
+check('предупреждает об отсутствии подводки', warnsOf({ volume_km: fm.volume_km.map((x, i) => i === 10 ? 28 : x) }));
+check('предупреждает о негоночной последней неделе', warnsOf({ long_km: fm.long_km.map((x, i) => i === 11 ? 12 : x) }));
+check('предупреждает о goal time без времени', warnsOf({ goal: 'time' }));
 
 console.log('рендерер:');
 const tmp = mkdtempSync(join(tmpdir(), 'marathon-test-'));
@@ -50,11 +53,15 @@ try {
 
   // рассинхрон PLAN и plan.md должен валить сборку
   const data = readFileSync(join(tmp, 'plan-data.js'), 'utf8');
-  writeFileSync(join(tmp, 'plan-data.js'), data.replace('weeks: 12', 'weeks: 13'));
-  let threw = false;
-  try { execFileSync('node', [join(here, 'render.mjs'), tmp], { stdio: 'pipe' }); }
-  catch { threw = true; }
-  check('ловит рассинхрон PLAN и plan.md', threw);
+  const broken = patch => {
+    writeFileSync(join(tmp, 'plan-data.js'), patch(data));
+    try { execFileSync('node', [join(here, 'render.mjs'), tmp], { stdio: 'pipe' }); return false; }
+    catch { return true; }
+  };
+  check('ловит рассинхрон PLAN и plan.md', broken(d => d.replace('weeks: 12', 'weeks: 13')));
+  check('ловит отсутствие easyPace при разгрузках', broken(d => d.replace(/^.*easyPace.*\n/m, '')));
+  check('ловит отсутствие desc у карточки', broken(d => d.replace('"Темповая":"Разминка', '"Темповая-нет":"Разминка')));
+  let threw;
 
   // сломанный plan-data.js не должен ронять рендерер молча
   writeFileSync(join(tmp, 'plan-data.js'), 'var PLAN = {');
